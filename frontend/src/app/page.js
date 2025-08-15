@@ -55,7 +55,7 @@ const toggleWebcam = async () => {
   }
 
   const handleDrop = (e) => {
-    e.preventDefault()
+    e.preventDefault() 
     e.stopPropagation()
     setDragActive(false)
 

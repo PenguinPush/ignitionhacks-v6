@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Trophy } from "lucide-react";
+import { useState, useRef } from "react";
+import { Trophy, Maximize, Minimize } from "lucide-react";
 
 export default function BadmintonScoreboard() {
   const [player1Score, setPlayer1Score] = useState(0);
@@ -25,13 +25,33 @@ export default function BadmintonScoreboard() {
     }, 300);
   };
 
+  const scoreboardRef = useRef(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const goFullscreen = () => {
+    if (!document.fullscreenElement && scoreboardRef.current) {
+      scoreboardRef.current.requestFullscreen().then(() => setIsFullscreen(true));
+    } else if (document.fullscreenElement) {
+      document.exitFullscreen().then(() => setIsFullscreen(false));
+    }
+  };
+
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 bg-card border border-border rounded-2xl shadow-lg">
+    <div ref={scoreboardRef} className="max-w-4xl mx-auto p-6 bg-card border border-border rounded-2xl shadow-lg">
       <div className="flex items-center justify-center gap-2 mb-6">
         <Trophy className="w-6 h-6 text-yellow-500" />
         <h2 className="text-2xl font-bold tracking-tight">Badminton Scoreboard</h2>
       </div>
-
+      <button
+          onClick={goFullscreen}
+          className="p-2 bg-primary/20 rounded-full hover:bg-primary/40 transition-colors"
+        >
+          {isFullscreen ? (
+            <Minimize className="w-5 h-5 text-primary" />
+          ) : (
+            <Maximize className="w-5 h-5 text-primary" />
+          )}
+        </button>
       <div className="grid grid-cols-2 gap-4 mb-8">
         
         <div className="flex flex-col items-center gap-2">
