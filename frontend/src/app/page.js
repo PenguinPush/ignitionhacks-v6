@@ -81,7 +81,7 @@ const toggleWebcam = async () => {
       const formData = new FormData()
       formData.append("file", file)
 
-      const response = await fetch("/api/analyze", {
+      const response = await fetch("/api/submit_video", {
         method: "POST",
         body: formData,
       })
