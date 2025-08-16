@@ -20,10 +20,10 @@ class MotionDetector:
 
             self.prev_gray = gray_frame
 
-            black_background = np.zeros_like(frame)
+            background = np.zeros_like(frame)
 
             motion_pixels = cv2.bitwise_and(frame, frame, mask=motion_mask)
-            frame_with_motion = cv2.add(black_background, motion_pixels)
+            frame_with_motion = cv2.add(background, motion_pixels)
 
             yield frame_with_motion
 
@@ -53,9 +53,8 @@ class MotionDetector:
         frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         fps = int(cap.get(cv2.CAP_PROP_FPS))
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec for .mp4 files
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
-        # Initialize video writer
         out = cv2.VideoWriter(output_file, fourcc, fps, (frame_width, frame_height))
 
         def frame_generator():
@@ -73,17 +72,6 @@ class MotionDetector:
 
 
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description="motion detector")
-    parser.add_argument("--input", type=str)
-    parser.add_argument("--output", type=str)
-    args = parser.parse_args()
-
     detector = MotionDetector()
-
-    if args.input and args.output:
-        detector.process_video(input_file=args.input, output_file=args.output)
-    else:
-        detector.process_stream(video_source=0)
+    detector.process_stream(video_source=0)
 
