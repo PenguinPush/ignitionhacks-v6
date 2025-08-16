@@ -7,11 +7,14 @@ import time
 from streaming import StreamingManager
 from motion import MotionDetector
 from physics import PhysicsCalculator
+from game import Game
 from inference import get_model
 import supervision as sv
 from trackers import SORTTracker
 
 # Initialize components
+game = Game()
+
 streaming = StreamingManager()
 streaming.connect_device(dev_idx=0)
 
@@ -41,6 +44,15 @@ async def send_coordinates(websocket, path):
                     "y": physics.last_position[1],
                     "z": physics.last_position[2],
                     "timestamp": physics.last_time,
+                    "team1_points": game.team1.points,
+                    "team2_points": game.team2.points,
+                    "team1_sets": game.team1.sets,
+                    "team2_sets": game.team2.sets,
+                    "set": game.set,
+                    "points_to_win": game.points_to_win,
+                    "sets_to_win": game.sets_to_win(),
+                    "best_of_sets": game.best_of_sets,
+                    "deuce_enabled": game.deuce_enabled,
                 }
                 await websocket.send(json.dumps(game_data))
                 # print(f"Sent coordinates: {game_data}")
