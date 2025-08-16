@@ -4,7 +4,6 @@ import json
 import cv2
 import time
 
-# Your existing imports and initialization
 from streaming import StreamingManager
 from motion import MotionDetector
 from physics import PhysicsCalculator
@@ -20,15 +19,15 @@ video_path = "test badminton 1.mp4"
 # video_path = "testdepth2.mp4"
 cap = cv2.VideoCapture(video_path)
 
-motion = MotionDetector(threshold=30)
-model = get_model("shuttlecock-cqzy3/1")
+motion = MotionDetector(threshold=25)
+model = get_model("badminton-crsqf/1")
 
-tracker = SORTTracker(lost_track_buffer=15, minimum_consecutive_frames=10)
+tracker = SORTTracker(lost_track_buffer=15, minimum_consecutive_frames=5)
 
 physics = PhysicsCalculator()
 
 path_points = []
-max_path_length = 50
+max_path_length = 80
 
 
 async def send_coordinates(websocket, path):
@@ -40,10 +39,10 @@ async def send_coordinates(websocket, path):
                     "x": physics.last_position[0],
                     "y": physics.last_position[1],
                     "z": physics.last_position[2],
-                    "timestamp": physics.last_time
+                    "timestamp": physics.last_time,
                 }
                 await websocket.send(json.dumps(game_data))
-                print(f"Sent coordinates: {game_data}")
+                # print(f"Sent coordinates: {game_data}")
             await asyncio.sleep(0.1)
     except websockets.exceptions.ConnectionClosed:
         print("WebSocket connection closed")
@@ -84,7 +83,7 @@ async def process_video():
         # for rgb_frame, depth_frame in streaming.get_frames():
         # for motion_frame in motion._isolated_motion([rgb_frame]):
         for motion_frame in motion._isolated_motion([rgbd_frame]):
-            result = model.infer(motion_frame, confidence=0.1)[0]
+            result = model.infer(motion_frame, confidence=0.2)[0]
             detections = sv.Detections.from_inference(result).with_nms(threshold=0.3)
             detections = tracker.update(detections)
 
@@ -92,48 +91,43 @@ async def process_video():
             current_time = time.time()
 
             estimated_position = physics.guess_pos(current_time)
-
             last_position = physics.last_position
+
+            shuttles = []
             if len(detections) > 0:
-                if last_position is not None:
-                    distances = [
-                        calculate_distance(
-                            ((detection[0][0] + detection[0][2]) / 2, (detection[0][1] + detection[0][3]) / 2),
-                            last_position
-                        )
-                        for detection in detections
-                    ]
-                    closest_idx = distances.index(min(distances))
-                else:
-                    closest_idx = detections.confidence.argmax()
+                for detection in detections:
+                    if detection[3] == 2:
+                        shuttles.append(detection)
 
-                detections = detections[closest_idx:closest_idx + 1]
+            if len(shuttles) > 0:
+                max_conf_idx = max(range(len(shuttles)),
+                                   key=lambda i: shuttles[i][3])
+                shuttle = shuttles[max_conf_idx]
 
-                detection_xyxy = detections.xyxy[0]
-                X_2D, Y_2D = (
+                detection_xyxy = shuttle[0]
+                X, Y = (
                     int((detection_xyxy[0] + detection_xyxy[2]) / 2),
                     int((detection_xyxy[1] + detection_xyxy[3]) / 2),
                 )
 
-                if calculate_distance((X_2D, Y_2D),
+                if calculate_distance((X, Y),
                                       last_position) <= 300 or physics.last_time + physics.timeout / 2 < current_time:
                     # hsv_image = cv2.cvtColor(depth_frame, cv2.COLOR_BGR2HSV)
-                    # depth_value = hsv_image[Y_2D, X_2D, 0] / 255
-                    depth_value = 1
-                    X, Y, Z = streaming.pixel_to_3d(X_2D, Y_2D, depth_value)
+                    # Z = hsv_image[Y_2D, X_2D, 0] / 255
+                    Z = 1
 
                     if Z >= 0.15:
-                        draw_text(X_2D, Y_2D, Z, (0, 255, 0))
-                        physics.update_pos((X_2D, Y_2D, Z), current_time)
+                        draw_text(X, Y, Z, (0, 255, 0))
+                        physics.update_pos((X, Y, Z), current_time)
 
-            else:
-                if estimated_position and estimated_position[2] >= 0.15:
-                    X_2D, Y_2D, Z = estimated_position
-                    if calculate_distance((X_2D, Y_2D),
-                                          last_position) <= 300 or physics.last_time + physics.timeout / 2 < current_time:
-                        draw_text(X_2D, Y_2D, Z, (0, 0, 255))
-                    else:
-                        draw_text(X_2D, Y_2D, Z, (255, 0, 0), False)
+                else:
+                    if estimated_position and estimated_position[2] >= 0.15:
+                        X, Y, Z = estimated_position
+                        if calculate_distance((X, Y),
+                                              last_position) <= 300 or physics.last_time + physics.timeout / 2 < current_time:
+                            draw_text(X, Y, Z, (0, 0, 255))
+                        else:
+                            draw_text(X, Y, Z, (255, 0, 0), False)
 
             for i in range(1, len(path_points)):
                 alpha = i / len(path_points)
@@ -146,11 +140,11 @@ async def process_video():
             cv2.imshow("Motion Frame", overlayed_frame)
             # cv2.imshow("Depth Frame", depth_frame)
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                cap.release()
-                cv2.destroyAllWindows()
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            cap.release()
+            cv2.destroyAllWindows()
 
-            await asyncio.sleep(0.01)
+        await asyncio.sleep(0.01)
 
 
 async def main():

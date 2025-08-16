@@ -1,5 +1,5 @@
 class PhysicsCalculator:
-    def __init__(self, timeout=0.5):
+    def __init__(self, timeout=-1):
         self.last_position = None
         self.last_velocity = None
         self.last_time = None
