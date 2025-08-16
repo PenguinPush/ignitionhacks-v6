@@ -139,7 +139,7 @@ export default function BadmintonScoreboard() {
     const prevDigits = prevScore.toString().padStart(2, "0").split("")
 
     return (
-      <div className="flex gap-1 sm:gap-2">
+      <div className="flex gap-2 sm:gap-4">
         {digits.map((digit, idx) => {
           const isFlipping = flipState && flipState[idx] === true
           const prevDigit = prevDigits[idx]
@@ -147,14 +147,21 @@ export default function BadmintonScoreboard() {
           return (
             <div
               key={idx}
-              className="relative w-16 h-20 sm:w-20 sm:h-24 md:w-24 md:h-28"
+              className="relative w-24 h-32 sm:w-32 sm:h-40 md:w-40 md:h-48 lg:w-48 lg:h-56"
               style={{ perspective: "1000px" }}
             >
               <div
-                className="absolute w-full h-full rounded-lg text-white font-mono font-black flex items-center justify-center transition-transform duration-600 ease-in-out text-4xl sm:text-5xl md:text-6xl bg-black/20 border-2 border-white/30"
+                className={`absolute w-full h-full rounded-2xl text-white font-mono font-black flex items-center justify-center transition-transform duration-600 ease-in-out text-6xl sm:text-7xl md:text-8xl lg:text-9xl border-4 shadow-2xl ${
+                  isHome
+                    ? "bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 border-blue-300/50 shadow-blue-500/30"
+                    : "bg-gradient-to-br from-red-400 via-red-500 to-red-700 border-red-300/50 shadow-red-500/30"
+                }`}
                 style={{
                   transformStyle: "preserve-3d",
                   transform: isFlipping ? "rotateX(-90deg)" : "rotateX(0deg)",
+                  boxShadow: isHome
+                    ? "0 25px 50px -12px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)"
+                    : "0 25px 50px -12px rgba(239, 68, 68, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)",
                 }}
               >
                 {isFlipping ? prevDigit : digit}
@@ -162,11 +169,18 @@ export default function BadmintonScoreboard() {
 
               {isFlipping && (
                 <div
-                  className="absolute w-full h-full rounded-lg text-white font-mono font-black flex items-center justify-center text-4xl sm:text-5xl md:text-6xl bg-black/20 border-2 border-white/30"
+                  className={`absolute w-full h-full rounded-2xl text-white font-mono font-black flex items-center justify-center text-6xl sm:text-7xl md:text-8xl lg:text-9xl border-4 shadow-2xl ${
+                    isHome
+                      ? "bg-gradient-to-br from-blue-400 via-blue-500 to-blue-700 border-blue-300/50 shadow-blue-500/30"
+                      : "bg-gradient-to-br from-red-400 via-red-500 to-red-700 border-red-300/50 shadow-red-500/30"
+                  }`}
                   style={{
                     transformStyle: "preserve-3d",
                     transform: "rotateX(90deg)",
                     animation: "flipIn 0.6s ease-in-out forwards",
+                    boxShadow: isHome
+                      ? "0 25px 50px -12px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)"
+                      : "0 25px 50px -12px rgba(239, 68, 68, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)",
                   }}
                 >
                   {digit}
@@ -187,23 +201,29 @@ export default function BadmintonScoreboard() {
   }
 
   return (
-    <div ref={scoreboardRef} className="relative w-full h-screen bg-gray-100 overflow-hidden">
+    <div
+      ref={scoreboardRef}
+      className="relative w-full h-screen bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden"
+    >
       {/* Main Split Layout */}
       <div className="flex h-full">
         {/* Home Side (Blue) */}
         <div
-          className="flex-1 bg-blue-500 flex flex-col items-center justify-center relative cursor-pointer active:bg-blue-600 transition-colors"
+          className="flex-1 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 flex flex-col items-center justify-center relative cursor-pointer active:from-blue-600 active:via-blue-700 active:to-blue-800 transition-all duration-200 shadow-inner"
           onClick={() => handlePoint(1)}
+          style={{
+            boxShadow: "inset 0 0 100px rgba(0, 0, 0, 0.1)",
+          }}
         >
           <div className="absolute top-6 left-6">
-            <h2 className="text-white text-lg sm:text-xl font-semibold">Home</h2>
+            <h2 className="text-white text-lg sm:text-xl font-bold drop-shadow-lg">Home</h2>
           </div>
 
           <ScoreDisplay score={player1Score} prevScore={prevP1} flipState={flipStates.p1} isHome={true} />
         </div>
 
         {/* Center Divider */}
-        <div className="w-16 sm:w-20 bg-gray-200 flex flex-col items-center justify-between py-6 relative">
+        <div className="w-16 sm:w-20 bg-gradient-to-b from-gray-200 via-gray-100 to-gray-200 flex flex-col items-center justify-between py-6 relative shadow-2xl">
           {/* Set Indicator */}
           <div className="text-center">
             <div className="text-xs text-gray-500 mb-1">SET</div>
@@ -258,11 +278,14 @@ export default function BadmintonScoreboard() {
 
         {/* Away Side (Red) */}
         <div
-          className="flex-1 bg-red-500 flex flex-col items-center justify-center relative cursor-pointer active:bg-red-600 transition-colors"
+          className="flex-1 bg-gradient-to-br from-red-500 via-red-600 to-red-700 flex flex-col items-center justify-center relative cursor-pointer active:from-red-600 active:via-red-700 active:to-red-800 transition-all duration-200 shadow-inner"
           onClick={() => handlePoint(2)}
+          style={{
+            boxShadow: "inset 0 0 100px rgba(0, 0, 0, 0.1)",
+          }}
         >
           <div className="absolute top-6 right-6">
-            <h2 className="text-white text-lg sm:text-xl font-semibold">Away</h2>
+            <h2 className="text-white text-lg sm:text-xl font-bold drop-shadow-lg">Away</h2>
           </div>
 
           <ScoreDisplay score={player2Score} prevScore={prevP2} flipState={flipStates.p2} isHome={false} />
