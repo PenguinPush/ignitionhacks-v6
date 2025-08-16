@@ -1,5 +1,5 @@
 import {useState, useRef, useEffect} from "react";
-import {Trophy, Maximize, Minimize} from "lucide-react";
+import {Trophy, Maximize, Minimize, Settings, X} from "lucide-react";
 
 export default function BadmintonScoreboard() {
     const [player1Score, setPlayer1Score] = useState(0);
@@ -19,12 +19,12 @@ export default function BadmintonScoreboard() {
 
     const scoreboardRef = useRef(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
-
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
 
     const [prevP1, setPrevP1] = useState(0);
     const [prevP2, setPrevP2] = useState(0);
     const [flipStates, setFlipStates] = useState({p1: [false, false], p2: [false, false]});
-
 
     useEffect(() => {
         const handleFullscreenChange = () => {
@@ -43,9 +43,8 @@ export default function BadmintonScoreboard() {
     };
 
     const flapSize = isFullscreen
-  ? "w-60 h-80 text-[10rem]" 
+  ? "w-32 h-40 text-7xl sm:w-40 sm:h-48 sm:text-8xl md:w-48 md:h-56 md:text-9xl lg:w-56 lg:h-64 lg:text-[8rem] xl:w-64 xl:h-72 xl:text-[9rem]" 
   : "w-24 h-32 text-6xl sm:w-28 sm:h-40 sm:text-7xl md:w-36 md:h-48 md:text-8xl lg:w-48 lg:h-64 lg:text-9xl xl:w-60 xl:h-80 xl:text-[10rem]";
-
 
     const checkGameWinner = (p1, p2) => {
         if (useDeuce) {
@@ -176,14 +175,12 @@ export default function BadmintonScoreboard() {
                         {isFlipping ? prevDigit : digit}
                     </div>
 
-
                     {isFlipping && (<div
                         className={`backface-hidden absolute w-full h-full rounded-lg ${color} text-white font-mono font-extrabold flex items-center justify-center shadow-lg border-2 border-white/20`}
                         style={{
                             transformStyle: 'preserve-3d',
                             animation: 'flipIn 0.3s ease-in-out forwards',
                             clipPath: isFlipping ? 'inset(50% 0 0 0)' : 'inset(0 0 0 0)',
-
                         }}
                     >
                         {digit}
@@ -225,29 +222,116 @@ export default function BadmintonScoreboard() {
     };
 
     return (
-    
-    <div
-        ref={scoreboardRef}
-        className={`bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-800 ${
-            isFullscreen
-                ? "w-screen h-screen flex flex-col justify-center items-center"
-                : "max-w-6xl mx-auto"
-        } transition-all duration-300`}
-    >
         <div
-            className={`relative bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-2xl p-6 ${isFullscreen ? "p-10 flex flex-col items-center justify-center" : ""}`}
+            ref={scoreboardRef}
+            className={`${
+                isFullscreen
+                    ? "w-screen h-screen flex flex-col justify-center bg-white dark:bg-slate-9000"
+                    : "max-w-6xl mx-auto bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-800"
+            } transition-all duration-300`}
         >
-            {/* Game Status */}
-            <div className="text-center mb-4">
-                <div className="flex justify-center gap-4 text-gray-600 dark:text-white/80">
-                    <span>Set {currentGame}/{bestOf}</span>
-                    <span>•</span>
-                    <span> {player1Games} : {player2Games}</span>
+            <div
+                className={`relative ${
+                    isFullscreen 
+                        ? "p-4 sm:p-6 md:p-8 flex-1 flex flex-col justify-center bg-transparent" 
+                        : "border border-gray-200 dark:border-slate-700 rounded-2xl shadow-2xl p-6 bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-800"
+                }`}
+            >
+                {/* Game Status */}
+                <div className="text-center mb-4">
+                    <div className={`flex justify-center gap-4 text-gray-600 dark:text-white/80 ${isFullscreen ? "text-lg sm:text-xl" : ""}`}>
+                        <span>Set {currentGame}/{bestOf}</span>
+                        <span>•</span>
+                        <span> {player1Games} : {player2Games}</span>
+                    </div>
                 </div>
-            </div>
 
-            {/* Game Settings */}
-            {!matchWinner && (<div className="flex flex-wrap justify-center align-center flex-col gap-4 mb-6 px-4">
+                {/* Players */}
+                <div
+                    className={`grid grid-cols-2 gap-8 mb-8 ${isFullscreen ? "gap-4 sm:gap-8 md:gap-12 lg:gap-16" : ""}`}
+                >
+                    <div className="flex flex-col items-center gap-4">
+                <span
+                    className={`font-medium text-gray-900 dark:text-white ${isFullscreen ? "text-xl sm:text-2xl md:text-3xl" : "text-lg"}`}
+                >
+                  Player 1
+                </span>
+                        <FlapScore
+                            score={player1Score}
+                            prevScore={prevP1}
+                            color="bg-gradient-to-b from-red-500 to-red-700"
+                            flipState={flipStates.p1}
+                        />
+                        <button
+                            onClick={() => handlePoint(1)}
+                            className={`px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all transform hover:scale-105 active:scale-95 shadow-lg ${isFullscreen ? "text-base sm:text-lg md:text-xl px-6 sm:px-8 py-3 sm:py-4" : ""}`}
+                            disabled={!!matchWinner}
+                        >
+                            +1 Point
+                        </button>
+                    </div>
+
+                    <div className="flex flex-col items-center gap-4">
+                <span
+                    className={`font-medium text-gray-900 dark:text-white ${isFullscreen ? "text-xl sm:text-2xl md:text-3xl" : "text-lg"}`}
+                >
+                  Player 2
+                </span>
+                        <FlapScore
+                            score={player2Score}
+                            prevScore={prevP2}
+                            color="bg-gradient-to-b from-blue-500 to-blue-700"
+                            flipState={flipStates.p2}
+                        />
+                        <button
+                            onClick={() => handlePoint(2)}
+                            className={`px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105 active:scale-95 shadow-lg ${isFullscreen ? "text-base sm:text-lg md:text-xl px-6 sm:px-8 py-3 sm:py-4" : ""}`}
+                            disabled={!!matchWinner}
+                        >
+                            +1 Point
+                        </button>
+                    </div>
+                </div>
+
+                {/* Controls */}
+                <div className="flex gap-4 mt-6 justify-center">
+                    <button
+                        onClick={resetMatch}
+                        className={`px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors ${isFullscreen ? "text-base sm:text-lg px-6 py-3" : ""}`}
+                    >
+                        Reset Match
+                    </button>
+                </div>
+
+                
+
+                
+
+                {/* Settings Button */}
+                <button
+                    onClick={() => setShowSettings(!showSettings)}
+                    className="absolute top-4 left-4 p-3 bg-gray-200/80 dark:bg-white/20 backdrop-blur-sm rounded-full hover:bg-gray-300/80 hover:scale-105 dark:hover:bg-white/30 dark:hover:scale-105 transition-transform duration-200 transition-colors z-40"
+                >
+                    <Settings className="w-6 h-6 text-gray-700 dark:text-white"/>
+                </button>
+
+                {/* Settings Modal */}
+                {showSettings && (
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 rounded-2xl">
+                        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-2xl border border-gray-200 dark:border-slate-700 max-w-md w-full mx-4">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Game Settings</h3>
+                                <button
+                                    onClick={() => setShowSettings(false)}
+                                    className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full transition-colors"
+                                >
+                                    <X className="w-5 h-5 text-gray-500 dark:text-gray-400"/>
+                                </button>
+                            </div>
+                            
+                            <div className="space-y-6">
+                            {/* Game Settings */} 
+                            {!matchWinner && (<div className="flex flex-wrap justify-center align-center flex-col gap-4 mb-6 px-4">
                 <div className="flex items-center gap-2 justify-center">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">First to</label>
                     <div className="relative w-10 h-8 overflow-hidden border rounded-lg cursor-pointer">
@@ -285,105 +369,72 @@ export default function BadmintonScoreboard() {
                 </div>
 
                 {/* Deuce Toggle Switch */}
-                <div className="flex items-center gap-2 justify-center">
-                    <label className="text-xs font-medium text-gray-700 dark:text-gray-300">Toggle Deuce</label>
-                    <button
-                        onClick={() => setUseDeuce(!useDeuce)}
-                        disabled={player1Score > 0 || player2Score > 0 || player1Games > 0 || player2Games > 0}
-                        className={`relative inline-flex h-4 w-10 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${useDeuce ? 'bg-yellow-600' : 'bg-gray-200 dark:bg-gray-600'}`}
-                    >
-                <span
-                    className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${useDeuce ? 'translate-x-6.5' : 'translate-x-0.5'}`}
-                />
-                    </button>
-                </div>
+                <div className="flex items-center justify-between">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            Deuce Rules
+                                        </label>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                            Require 2-point lead to win
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => setUseDeuce(!useDeuce)}
+                                        disabled={player1Score > 0 || player2Score > 0 || player1Games > 0 || player2Games > 0}
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                                            useDeuce ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'
+                                        }`}
+                                    >
+                                        <span
+                                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                                useDeuce ? 'translate-x-6' : 'translate-x-1'
+                                            }`}
+                                        />
+                                    </button>
+                                </div>
             </div>)}
+                            </div>
 
-            {/* Players */}
-            <div
-                className={`grid grid-cols-2 gap-8 mb-8 ${isFullscreen ? "gap-16" : ""}`}
-            >
-                <div className="flex flex-col items-center gap-4">
-            <span
-                className={`font-medium text-gray-900 dark:text-white ${isFullscreen ? "text-3xl" : "text-lg"}`}
-            >
-              Player 1
-            </span>
-                    <FlapScore
-                        score={player1Score}
-                        prevScore={prevP1}
-                        color="bg-gradient-to-b from-red-500 to-red-700"
-                        flipState={flipStates.p1}
-                    />
-                    <button
-                        onClick={() => handlePoint(1)}
-                        className={`px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all transform hover:scale-105 active:scale-95 shadow-lg ${isFullscreen ? "text-xl px-8 py-4" : ""}`}
-                        disabled={!!matchWinner}
-                    >
-                        +1 Point
-                    </button>
-                </div>
+                            <div className="mt-8 flex justify-end">
+                                <button
+                                    onClick={() => setShowSettings(false)}
+                                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                                >
+                                    Done
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
-                <div className="flex flex-col items-center gap-4">
-            <span
-                className={`font-medium text-gray-900 dark:text-white ${isFullscreen ? "text-3xl" : "text-lg"}`}
-            >
-              Player 2
-            </span>
-                    <FlapScore
-                        score={player2Score}
-                        prevScore={prevP2}
-                        color="bg-gradient-to-b from-blue-500 to-blue-700"
-                        flipState={flipStates.p2}
-                    />
-                    <button
-                        onClick={() => handlePoint(2)}
-                        className={`px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105 active:scale-95 shadow-lg ${isFullscreen ? "text-xl px-8 py-4" : ""}`}
-                        disabled={!!matchWinner}
-                    >
-                        +1 Point
-                    </button>
-                </div>
-            </div>
-
-
-            {/* Controls */}
-            <div className="flex gap-4 mt-6">
+                {/* Fullscreen Toggle */}
                 <button
-                    onClick={resetMatch}
-                    className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
+                    onClick={goFullscreen}
+                    className="absolute bottom-4 right-4 p-3 bg-gray-200/80 dark:bg-white/20 backdrop-blur-sm rounded-full hover:bg-gray-300/80 hover:scale-105 dark:hover:bg-white/30 dark:hover:scale-105 transition-transform duration-200 transition-colors z-40"
                 >
-                    Reset Match
+                    {isFullscreen ? (<Minimize className="w-6 h-6 text-gray-700 dark:text-white"/>) : (
+                        <Maximize className="w-6 h-6 text-gray-700 dark:text-white"/>)}
                 </button>
+
+                {/* Match Winner Overlay */}
+                {matchWinner && (<div
+                    className="absolute inset-0 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center z-50 rounded-2xl">
+                    <div className="text-center">
+                        <h1 className={`text-white font-bold mb-4 animate-bounce ${isFullscreen ? "text-4xl sm:text-5xl md:text-6xl" : "text-6xl"}`}>
+                            🏆
+                        </h1>
+                        <h2 className={`text-white font-bold mb-8 ${isFullscreen ? "text-2xl sm:text-3xl md:text-4xl" : "text-4xl"}`}>
+                            {matchWinner} Wins!
+                        </h2>
+                        <button
+                            onClick={resetMatch}
+                            className={`bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all transform hover:scale-105 font-semibold shadow-lg ${isFullscreen ? "px-6 sm:px-8 py-3 sm:py-4 text-lg sm:text-xl md:text-2xl" : "px-8 py-4 text-2xl"}`}
+                        >
+                            New Match
+                        </button>
+                    </div>
+                </div>)}
             </div>
-
-            {/* Fullscreen Toggle */}
-            <button
-                onClick={goFullscreen}
-                className="absolute bottom-4 right-4 p-3 bg-gray-200/80 dark:bg-white/20 backdrop-blur-sm rounded-full hover:bg-gray-300/80 hover:scale-105 dark:hover:bg-white/30 dark:hover:scale-105 transition-transform duration-200 tranistion-color z-40 "
-            >
-                {isFullscreen ? (<Minimize className="w-6 h-6 text-gray-700 dark:text-white"/>) : (
-                    <Maximize className="w-6 h-6 text-gray-700 dark:text-white"/>)}
-            </button>
-
-            {/* Match Winner Overlay */}
-            {matchWinner && (<div
-                className="absolute inset-0 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center z-50 rounded-2xl">
-                <div className="text-center">
-                    <h1 className="text-6xl text-white font-bold mb-4 animate-bounce">
-                        🏆
-                    </h1>
-                    <h2 className="text-4xl text-white font-bold mb-8">
-                        {matchWinner} Wins!
-                    </h2>
-                    <button
-                        onClick={resetMatch}
-                        className="px-8 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all transform hover:scale-105 text-2xl font-semibold shadow-lg"
-                    >
-                        New Match
-                    </button>
-                </div>
-            </div>)}
         </div>
-    </div>);
+    );
 }
