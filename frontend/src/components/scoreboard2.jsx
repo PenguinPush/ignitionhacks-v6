@@ -228,14 +228,14 @@ export default function BadmintonScoreboard() {
     
     <div
         ref={scoreboardRef}
-        className={`relative ${
-          isFullscreen
-            ? "fixed inset-0 flex items-center justify-center bg-black z-50"
-            : "max-w-6xl mx-auto p-6"
+        className={`bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-800 ${
+            isFullscreen
+                ? "w-screen h-screen flex flex-col justify-center items-center"
+                : "max-w-6xl mx-auto"
         } transition-all duration-300`}
-      >
+    >
         <div
-            className={`relative bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-2xl p-6 ${isFullscreen ? "w-3/4 h-3/4 flex flex-col items-center justify-center" : ""}`}
+            className={`relative bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-2xl p-6 ${isFullscreen ? "p-10 flex flex-col items-center justify-center" : ""}`}
         >
             {/* Game Status */}
             <div className="text-center mb-4">
