@@ -80,7 +80,7 @@ export default function FileAnalyzer() {
             if (socket) socket.close();
             if (reconnectInterval) clearInterval(reconnectInterval);
         };
-    }, [gameData]);
+    }, []);
 
     const FlapScore = ({score, prevScore, color, flipState}) => {
         const digits = score.toString().padStart(2, "0").split("");

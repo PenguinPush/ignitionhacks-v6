@@ -23,7 +23,7 @@ streaming.connect_device(dev_idx=0)
 # cap = cv2.VideoCapture(video_path)
 
 # motion = MotionDetector(threshold=25)
-motion = MotionDetector(threshold=60)
+motion = MotionDetector(threshold=30)
 model = get_model("badminton-crsqf/1")
 
 tracker = SORTTracker(lost_track_buffer=15, minimum_consecutive_frames=5)
@@ -33,10 +33,10 @@ physics = PhysicsCalculator()
 path_points = []
 max_path_length = 15
 MAX_LINE_LENGTH = 150
-COURT_Y = 430
+COURT_Y = 350
 
 
-async def send_coordinates(websocket, path):
+async def send_coordinates(websocket):
     print("WebSocket connection established")
     try:
         while True:
@@ -56,10 +56,15 @@ async def send_coordinates(websocket, path):
                     "best_of_sets": game.best_of_sets,
                     "deuce_enabled": game.deuce_enabled,
                 }
-                await websocket.send(json.dumps(game_data))
-                # print(f"Sent coordinates: {game_data}")
+                try:
+                    await websocket.send(json.dumps(game_data))
+                except websockets.exceptions.ConnectionClosed:
+                    print("WebSocket connection closed while sending data")
+                    break
             await asyncio.sleep(0.1)
-    except websockets.exceptions.ConnectionClosed:
+    except Exception as e:
+        print(f"Error in send_coordinates: {e}")
+    finally:
         print("WebSocket connection closed")
 
 
@@ -122,7 +127,7 @@ async def process_video():
             continue
 
             # for motion_frame in motion._isolated_motion([rgbd_frame]):
-        result = model.infer(motion_frame, confidence=0.15)[0]
+        result = model.infer(motion_frame, confidence=0.3)[0]
         detections = sv.Detections.from_inference(result).with_nms(threshold=0.3)
         detections = tracker.update(detections)
 
