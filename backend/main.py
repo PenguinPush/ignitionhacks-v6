@@ -63,19 +63,16 @@ async def send_coordinates(websocket, path):
 
 
 async def process_video():
-    def update_score(self, X, Y, Z, frame_width, game):
-        
-        current_time = time.time()
-        if Z <= self.floor_y and current_time - self.last_point_time > self.cooldown:
-            side = "Player 1" if X < frame_width // 2 else "Player 2"
+    def check_for_point(self, X, Y, Z, current_time, last_point_time):
+        if Y >= 48 and current_time - last_point_time > 8:
+            side = "Player 1" if X < 640 // 2 else "Player 2"
             if side == "Player 1":
                 game.team2.add_point() 
             else:
                 game.team1.add_point()
             
-            print(f"Shuttle landed at ({X}, {Y}, {Z:.2f}) on {side}'s side. Point awarded to opponent.")
-            self.last_point_time = current_time
-            return True
+            print(f"({X:.2f}, {Y:.2f}, {Z:.2f}) on {side}'s side")
+        last_point_time = current_time
 
 
     def draw_text(X, Y, Z, color, line=1):

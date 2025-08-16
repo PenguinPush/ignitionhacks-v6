@@ -10,6 +10,8 @@ class StreamingManager:
         self.session = None
         self.DEVICE_TYPE__TRUEDEPTH = 0
         self.DEVICE_TYPE__LIDAR = 1
+        self.intrinsics = None
+        self.pose = None
 
     def on_new_frame(self):
         self.event.set()  # notify to stop waiting
@@ -29,6 +31,8 @@ class StreamingManager:
         self.session.on_new_frame = self.on_new_frame
         self.session.on_stream_stopped = self.on_stream_stopped
         self.session.connect(dev)  # start connecting
+        self.intrinsics = self.session.get_intrinsic_mat()
+        self.pose = self.session.get_camera_pose()
 
 
     def get_intrinsic_mat_from_coeffs(self, coeffs):

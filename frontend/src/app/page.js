@@ -61,7 +61,16 @@ export default function FileAnalyzer() {
                         <p>X: {gameData.x}</p>
                         <p>Y: {gameData.y}</p>
                         <p>Z: {gameData.z}</p>
-                        <p>Timestamp: {gameData.timestamp}</p>
+                        <p>last position update: {gameData.timestamp}</p>
+                        <p>team 1 points: {gameData.team1_points}</p>
+                        <p>team 2 points: {gameData.team2_points}</p>
+                        <p>team 1 sets: {gameData.team1_sets}</p>
+                        <p>team 2 sets: {gameData.team2_sets}</p>
+                        <p>set #: {gameData.set}</p>
+                        <p>x points to win: {gameData.points_to_win}</p>
+                        <p>x sets to win: {gameData.sets_to_win}</p>
+                        <p>best of sets: {gameData.best_of_sets}</p>
+                        <p>dueceenabled: {gameData.deuce_enabled}</p>
                     </div>
                 ) : (
                     <p>Waiting for updates...</p>
