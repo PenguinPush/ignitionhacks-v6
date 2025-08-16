@@ -42,7 +42,10 @@ export default function BadmintonScoreboard() {
         }
     };
 
-    const flapSize = isFullscreen ? "w-60 h-80 text-9xl" : "w-36 h-48 text-8xl";
+    const flapSize = isFullscreen
+  ? "w-60 h-80 text-[10rem]" 
+  : "w-24 h-32 text-6xl sm:w-28 sm:h-40 sm:text-7xl md:w-36 md:h-48 md:text-8xl lg:w-48 lg:h-64 lg:text-9xl xl:w-60 xl:h-80 xl:text-[10rem]";
+
 
     const checkGameWinner = (p1, p2) => {
         if (useDeuce) {
@@ -227,8 +230,8 @@ export default function BadmintonScoreboard() {
         ref={scoreboardRef}
         className={`relative ${
           isFullscreen
-            ? "mx-auto fixed inset-0 flex items-center justify-center bg-black z-50"
-            : "max-w-5xl mx-auto p-6"
+            ? "fixed inset-0 flex items-center justify-center bg-black z-50"
+            : "max-w-6xl mx-auto p-6"
         } transition-all duration-300`}
       >
         <div
