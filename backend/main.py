@@ -36,14 +36,14 @@ async def send_coordinates(websocket, path):
     try:
         while True:
             if physics.last_position:
-                coordinates = {
+                game_data = {
                     "x": physics.last_position[0],
                     "y": physics.last_position[1],
                     "z": physics.last_position[2],
                     "timestamp": physics.last_time
                 }
-                await websocket.send(json.dumps(coordinates))
-                print(f"Sent coordinates: {coordinates}")
+                await websocket.send(json.dumps(game_data))
+                print(f"Sent coordinates: {game_data}")
             await asyncio.sleep(0.1)
     except websockets.exceptions.ConnectionClosed:
         print("WebSocket connection closed")

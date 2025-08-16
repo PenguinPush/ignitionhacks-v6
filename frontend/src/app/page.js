@@ -4,7 +4,7 @@ import {useState, useEffect} from "react"
 import BadmintonScoreboard from "@/components/scoreboard"
 
 export default function FileAnalyzer() {
-    const [coordinates, setCoordinates] = useState(null);
+    const [gameData, setGameData] = useState(null);
 
     useEffect(() => {
         let socket;
@@ -22,7 +22,7 @@ export default function FileAnalyzer() {
 
             socket.onmessage = (event) => {
                 const data = JSON.parse(event.data);
-                setCoordinates(data);
+                setGameData(data);
             };
 
             socket.onclose = () => {
@@ -54,13 +54,13 @@ export default function FileAnalyzer() {
                 className="absolute inset-0 bg-gradient-to-br from-background via-background to-card/50 flex justify-center align-center"/>
 
             <div className="relative z-10 p-6">
-                <h1 className="text-xl font-bold">Shuttlecock Coordinates</h1>
-                {coordinates ? (
+                <h1 className="text-xl font-bold">Birdie Coordinates</h1>
+                {gameData ? (
                     <div>
-                        <p>X: {coordinates.x}</p>
-                        <p>Y: {coordinates.y}</p>
-                        <p>Z: {coordinates.z}</p>
-                        <p>Timestamp: {coordinates.timestamp}</p>
+                        <p>X: {gameData.x}</p>
+                        <p>Y: {gameData.y}</p>
+                        <p>Z: {gameData.z}</p>
+                        <p>Timestamp: {gameData.timestamp}</p>
                     </div>
                 ) : (
                     <p>Waiting for updates...</p>
