@@ -11,15 +11,19 @@ export default function BadmintonScoreboard() {
 
   const [matchWinner, setMatchWinner] = useState(null);
 
+  const [useDeuce, setUseDeuce] = useState(true);
+  const [bestOf, setBestOf] = useState(3); // 3, 5, or 7
+  const gamesNeededToWin = Math.ceil(bestOf / 2);
+
   const scoreboardRef = useRef(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Keep track of previous scores for flip detection
+
   const [prevP1, setPrevP1] = useState(0);
   const [prevP2, setPrevP2] = useState(0);
   const [flipStates, setFlipStates] = useState({ p1: [false, false], p2: [false, false] });
 
-  // keep fullscreen state synced
+
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -39,13 +43,20 @@ export default function BadmintonScoreboard() {
 
   const flapSize = isFullscreen ? "w-48 h-48 text-8xl" : "w-24 h-24 text-4xl";
 
-  // ✅ Correct badminton rules
+  // ✅ Correct badminton rules with deuce option
   const checkGameWinner = (p1, p2) => {
-    if ((p1 >= 21 || p2 >= 21) && Math.abs(p1 - p2) >= 2) {
-      return p1 > p2 ? "Player 1" : "Player 2";
-    }
-    if (p1 === 30 || p2 === 30) {
-      return p1 > p2 ? "Player 1" : "Player 2";
+    if (useDeuce) {
+      // Traditional deuce rules
+      if ((p1 >= 21 || p2 >= 21) && Math.abs(p1 - p2) >= 2) {
+        return p1 > p2 ? "Player 1" : "Player 2";
+      }
+      if (p1 === 30 || p2 === 30) {
+        return p1 > p2 ? "Player 1" : "Player 2";
+      }
+    } else {
+      // No deuce - first to 21 wins
+      if (p1 >= 21) return "Player 1";
+      if (p2 >= 21) return "Player 2";
     }
     return null;
   };
@@ -55,13 +66,13 @@ export default function BadmintonScoreboard() {
 
     if (player === 1) {
       const newScore = player1Score + 1;
-      setPrevP1(player1Score);
-      setPlayer1Score(newScore);
-
-      // Trigger flip animation for changed digits
       const oldDigits = player1Score.toString().padStart(2, "0").split("");
       const newDigits = newScore.toString().padStart(2, "0").split("");
       const newFlipState = oldDigits.map((digit, idx) => digit !== newDigits[idx]);
+      
+      // Update scores and flip state together
+      setPrevP1(player1Score);
+      setPlayer1Score(newScore);
       setFlipStates(prev => ({ ...prev, p1: newFlipState }));
 
       // Reset flip state after animation
@@ -73,13 +84,13 @@ export default function BadmintonScoreboard() {
       if (win) endGame(win);
     } else {
       const newScore = player2Score + 1;
-      setPrevP2(player2Score);
-      setPlayer2Score(newScore);
-
-      // Trigger flip animation for changed digits
       const oldDigits = player2Score.toString().padStart(2, "0").split("");
       const newDigits = newScore.toString().padStart(2, "0").split("");
       const newFlipState = oldDigits.map((digit, idx) => digit !== newDigits[idx]);
+      
+      // Update scores and flip state together
+      setPrevP2(player2Score);
+      setPlayer2Score(newScore);
       setFlipStates(prev => ({ ...prev, p2: newFlipState }));
 
       // Reset flip state after animation
@@ -95,7 +106,7 @@ export default function BadmintonScoreboard() {
   const endGame = (winner) => {
     if (winner === "Player 1") {
       setPlayer1Games((g) => {
-        if (g + 1 === 2) {
+        if (g + 1 === gamesNeededToWin) {
           setMatchWinner("Player 1");
           return g + 1;
         }
@@ -103,7 +114,7 @@ export default function BadmintonScoreboard() {
       });
     } else {
       setPlayer2Games((g) => {
-        if (g + 1 === 2) {
+        if (g + 1 === gamesNeededToWin) {
           setMatchWinner("Player 2");
           return g + 1;
         }
@@ -111,7 +122,7 @@ export default function BadmintonScoreboard() {
       });
     }
 
-    setCurrentGame((g) => Math.min(g + 1, 3));
+    setCurrentGame((g) => Math.min(g + 1, bestOf));
     setPlayer1Score(0);
     setPlayer2Score(0);
     setPrevP1(0);
@@ -139,12 +150,13 @@ export default function BadmintonScoreboard() {
     return (
       <div className="flex gap-2">
         {digits.map((digit, idx) => {
-          const isFlipping = flipState[idx];
+          
+          const isFlipping = flipState && flipState[idx] === true;
           const prevDigit = prevDigits[idx];
           
           return (
             <div key={idx} className={`relative ${flapSize}`} style={{ perspective: '1000px' }}>
-              {/* Current digit (front) */}
+              
               <div
                 className={`absolute w-full h-full rounded-lg ${color} text-white font-mono font-extrabold flex items-center justify-center transition-transform duration-600 ease-in-out shadow-lg border-2 border-white/20`}
                 style={{
@@ -155,7 +167,7 @@ export default function BadmintonScoreboard() {
                 {isFlipping ? prevDigit : digit}
               </div>
               
-              {/* New digit (back) - appears when flipping */}
+              
               {isFlipping && (
                 <div
                   className={`absolute w-full h-full rounded-lg ${color} text-white font-mono font-extrabold flex items-center justify-center shadow-lg border-2 border-white/20`}
@@ -213,13 +225,60 @@ export default function BadmintonScoreboard() {
         {/* Game Status */}
         <div className="text-center mb-4">
           <div className="flex justify-center gap-4 text-gray-600 dark:text-white/80">
-            <span>Game {currentGame}</span>
+            <span>Game {currentGame}/{bestOf}</span>
             <span>•</span>
             <span>Player 1: {player1Games}</span>
             <span>•</span>
             <span>Player 2: {player2Games}</span>
           </div>
         </div>
+
+        {/* Game Settings */}
+        {!matchWinner && (
+          <div className="flex flex-wrap justify-center gap-6 mb-6 px-4">
+            {/* Deuce Toggle Switch */}
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Race to 21</span>
+              <button
+                onClick={() => setUseDeuce(!useDeuce)}
+                disabled={player1Score > 0 || player2Score > 0}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  useDeuce 
+                    ? 'bg-yellow-600' 
+                    : 'bg-gray-200 dark:bg-gray-600'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    useDeuce ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Deuce</span>
+            </div>
+
+            {/* Best Of Selector */}
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Best of:</label>
+              <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                {[3, 5, 7].map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => setBestOf(option)}
+                    disabled={currentGame > 1 || player1Games > 0 || player2Games > 0}
+                    className={`px-3 py-1 text-sm rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                      bestOf === option
+                        ? 'bg-yellow-600 text-white shadow-sm'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Players */}
         <div
@@ -282,11 +341,15 @@ export default function BadmintonScoreboard() {
         <div className="flex items-center justify-center gap-12 text-gray-500 dark:text-white/60">
           <div className="flex flex-col items-center">
             <span className="text-sm">Current Game</span>
-            <span className="text-lg font-semibold text-gray-900 dark:text-white">{currentGame}/3</span>
+            <span className="text-lg font-semibold text-gray-900 dark:text-white">{currentGame}/{bestOf}</span>
           </div>
           <div className="flex flex-col items-center">
             <span className="text-sm">Format</span>
-            <span className="text-lg font-semibold text-gray-900 dark:text-white">Best of 3</span>
+            <span className="text-lg font-semibold text-gray-900 dark:text-white">Best of {bestOf}</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-sm">Rules</span>
+            <span className="text-lg font-semibold text-gray-900 dark:text-white">{useDeuce ? 'Deuce' : 'Race to 21'}</span>
           </div>
         </div>
 
