@@ -28,6 +28,7 @@ class SimpleSpeechToText:
         self.model = None
         self.is_recording = False
         self.audio = pyaudio.PyAudio()
+        self.stream = None
         
         print(f"Loading Whisper model: {model_size}")
         try:
@@ -64,66 +65,100 @@ class SimpleSpeechToText:
         
         self.is_recording = True
         
-        # Audio settings
+        # Audio settings - increased buffer size to prevent overflow
         sample_rate = 16000
-        chunk_size = 1024
-        duration = 3  # seconds per chunk
+        chunk_size = 2048  # Increased from 1024
+        duration = 2  # Reduced from 3 seconds to process faster
         
-        # Open audio stream
-        stream = self.audio.open(
-            format=pyaudio.paFloat32,
-            channels=1,
-            rate=sample_rate,
-            input=True,
-            frames_per_buffer=chunk_size
-        )
+        # Open audio stream with larger buffer
+        try:
+            self.stream = self.audio.open(
+                format=pyaudio.paFloat32,
+                channels=1,
+                rate=sample_rate,
+                input=True,
+                frames_per_buffer=chunk_size,
+                input_device_index=None,  # Use default device
+                stream_callback=None
+            )
+        except Exception as e:
+            print(f"Error opening audio stream: {e}")
+            self.is_recording = False
+            return
         
         print("🎤 Recording started! Speak now...")
         
         try:
             while self.is_recording:
-                # Record audio chunk
+                # Record audio chunk with error handling
                 frames = []
-                for _ in range(0, int(sample_rate / chunk_size * duration)):
-                    if not self.is_recording:
-                        break
-                    data = stream.read(chunk_size)
-                    frames.append(data)
+                try:
+                    for _ in range(0, int(sample_rate / chunk_size * duration)):
+                        if not self.is_recording:
+                            break
+                        try:
+                            data = self.stream.read(chunk_size, exception_on_overflow=False)
+                            frames.append(data)
+                        except OSError as e:
+                            if "Input overflowed" in str(e):
+                                # Skip this chunk if buffer overflow
+                                continue
+                            else:
+                                raise
+                except Exception as e:
+                    print(f"Error reading audio: {e}")
+                    break
                 
-                if not self.is_recording:
+                if not self.is_recording or not frames:
                     break
                 
                 # Combine frames and convert to numpy
                 audio_data = b''.join(frames)
-                audio_array = np.frombuffer(audio_data, dtype=np.float32)
+                audio_array = np.frombuffer(audio_data, dtype=np.float32).copy()  # Make writable
                 
-                # Check if audio has sound
-                if np.max(np.abs(audio_array)) > 0.01:
-                    # Transcribe
-                    result = self.model.transcribe(audio_array, language="en")
-                    text = result["text"].strip()
-                    
-                    if text:
-                        print(f"🎤 {text}")
-                        if self.callback:
-                            self.callback(text)
+                # Check if audio has sound (increased threshold slightly)
+                if np.max(np.abs(audio_array)) > 0.005:  # Reduced threshold
+                    try:
+                        # Transcribe
+                        result = self.model.transcribe(audio_array, language="en")
+                        text = result["text"].strip()
+                        
+                        if text and len(text) > 1:  # Only process meaningful text
+                            print(f"🎤 {text}")
+                            if self.callback:
+                                self.callback(text)
+                    except Exception as e:
+                        print(f"Transcription error: {e}")
+                        continue
                 
         except KeyboardInterrupt:
             print("\n🛑 Stopping...")
+        except Exception as e:
+            print(f"Recording error: {e}")
         finally:
-            stream.stop_stream()
-            stream.close()
-            self.is_recording = False
+            self.stop_recording()
     
     def stop_recording(self):
         """Stop recording."""
         self.is_recording = False
+        if self.stream:
+            try:
+                self.stream.stop_stream()
+                self.stream.close()
+            except Exception as e:
+                print(f"Error closing stream: {e}")
+            finally:
+                self.stream = None
         print("Recording stopped")
     
     def cleanup(self):
         """Clean up resources."""
         self.stop_recording()
-        self.audio.terminate()
+        if self.audio:
+            try:
+                self.audio.terminate()
+            except Exception as e:
+                print(f"Error terminating audio: {e}")
 
 
 # Simple usage example

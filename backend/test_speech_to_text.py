@@ -74,7 +74,7 @@ def interactive_test():
     """Run an interactive test with user input."""
     print("\n🎮 Interactive Test")
     print("==================")
-    print("This test will record your voice for 10 seconds.")
+    print("This test will record your voice for 8 seconds.")
     print("Speak clearly into your microphone.")
     print("Press Enter when ready to start...")
     input()
@@ -88,7 +88,7 @@ def interactive_test():
     try:
         stt = SimpleSpeechToText(model_size="tiny", callback=capture_callback)
         
-        print("🎤 Recording for 10 seconds... (speak now!)")
+        print("🎤 Recording for 8 seconds... (speak now!)")
         start_time = time.time()
         
         # Start recording in a separate thread
@@ -97,15 +97,15 @@ def interactive_test():
         recording_thread.daemon = True
         recording_thread.start()
         
-        # Wait for 10 seconds
-        while time.time() - start_time < 10:
+        # Wait for 8 seconds
+        while time.time() - start_time < 8:
             time.sleep(0.1)
         
         stt.stop_recording()
-        recording_thread.join(timeout=1)
+        recording_thread.join(timeout=2)
         
         print(f"\n📊 Test Results:")
-        print(f"   - Duration: 10 seconds")
+        print(f"   - Duration: 8 seconds")
         print(f"   - Transcriptions captured: {len(transcriptions)}")
         
         if transcriptions:
@@ -124,7 +124,7 @@ def interactive_test():
 
 def quick_test():
     """Quick test without user interaction."""
-    print("⚡ Quick Test (5 seconds)")
+    print("⚡ Quick Test (4 seconds)")
     print("========================")
     
     transcriptions = []
@@ -136,7 +136,7 @@ def quick_test():
     try:
         stt = SimpleSpeechToText(model_size="tiny", callback=quick_callback)
         
-        print("🎤 Recording for 5 seconds...")
+        print("🎤 Recording for 4 seconds...")
         start_time = time.time()
         
         import threading
@@ -144,11 +144,11 @@ def quick_test():
         recording_thread.daemon = True
         recording_thread.start()
         
-        while time.time() - start_time < 5:
+        while time.time() - start_time < 4:
             time.sleep(0.1)
         
         stt.stop_recording()
-        recording_thread.join(timeout=1)
+        recording_thread.join(timeout=2)
         
         print(f"📊 Quick test captured {len(transcriptions)} transcriptions")
         stt.cleanup()
