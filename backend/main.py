@@ -23,7 +23,7 @@ streaming.connect_device(dev_idx=0)
 # cap = cv2.VideoCapture(video_path)
 
 # motion = MotionDetector(threshold=25)
-motion = MotionDetector(threshold=40)
+motion = MotionDetector(threshold=60)
 model = get_model("badminton-crsqf/1")
 
 tracker = SORTTracker(lost_track_buffer=15, minimum_consecutive_frames=5)
@@ -31,8 +31,9 @@ tracker = SORTTracker(lost_track_buffer=15, minimum_consecutive_frames=5)
 physics = PhysicsCalculator()
 
 path_points = []
-max_path_length = 5
-MAX_LINE_LENGTH = 300
+max_path_length = 15
+MAX_LINE_LENGTH = 150
+COURT_Y = 430
 
 
 async def send_coordinates(websocket, path):
@@ -63,17 +64,6 @@ async def send_coordinates(websocket, path):
 
 
 async def process_video():
-    def check_for_point(self, X, Y, Z, current_time, last_point_time):
-        if Y >= 48 and current_time - last_point_time > 8:
-            side = "Player 1" if X < 640 // 2 else "Player 2"
-            if side == "Player 1":
-                game.team2.add_point() 
-            else:
-                game.team1.add_point()
-            
-            print(f"({X:.2f}, {Y:.2f}, {Z:.2f}) on {side}'s side")
-        last_point_time = current_time
-
 
     def draw_text(X, Y, Z, color, line=1):
         text = f"({X:.2f}, {Y:.2f}, {Z:.2f})"
@@ -111,6 +101,7 @@ async def process_video():
         try:
             rgb_frame, depth_frame = next(frame_generator)
             rgb_frame = cv2.rotate(rgb_frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            rgb_frame = cv2.resize(rgb_frame, (640, 480))
             depth_frame = cv2.rotate(depth_frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
         except StopIteration:
             await asyncio.sleep(0.01)
@@ -139,6 +130,7 @@ async def process_video():
         current_time = time.time()
 
         last_position = physics.last_position
+        X, Y, Z = [None, None, None]
 
         shuttles = []
         if len(detections) > 0:
@@ -179,6 +171,12 @@ async def process_video():
                     else:
                         draw_text(X, Y, Z, (255, 0, 0), 0)
 
+        if X and Y and Z:
+            point_response = physics.check_for_point(X, Y, Z, current_time, COURT_Y)
+            if point_response:
+                game.add_point(point_response - 1)
+                print(point_response)
+
         for i in range(1, len(path_points)):
             alpha = i / len(path_points)
             color = (255 * alpha, 255 * alpha, 255 * alpha)
@@ -186,6 +184,7 @@ async def process_video():
                 cv2.line(motion_frame_annotated, path_points[i - 1], path_points[i], color, 2)
 
         # overlayed_frame = cv2.addWeighted(rgbd_frame, 0.5, motion_frame_annotated, 1, 0)
+        motion_frame_annotated = cv2.rectangle(motion_frame_annotated, (0, COURT_Y), (640, 480), color=(255, 255, 255), thickness=2)
         overlayed_frame = cv2.addWeighted(rgb_frame, 0.08, motion_frame_annotated, 1, 0)
         cv2.imshow("Motion Frame", overlayed_frame)
         cv2.imshow("Depth Frame", depth_frame)

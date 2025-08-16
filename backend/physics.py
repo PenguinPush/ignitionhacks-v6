@@ -3,6 +3,7 @@ class PhysicsCalculator:
         self.last_position = None
         self.last_velocity = None
         self.last_time = None
+        self.last_point_time = 0
         self.timeout = timeout
 
     def update_pos(self, position, timestamp):
@@ -50,3 +51,11 @@ class PhysicsCalculator:
                     return estimated_position
             return None
         return None
+
+    def check_for_point(self, X, Y, Z, timestamp, COURT_Y):
+        deltatime = timestamp - self.last_point_time
+        if Y >= COURT_Y and deltatime > 8:
+            side = 1 if X < 640 // 2 else 2
+            self.last_point_time = timestamp
+            return side
+        return 0

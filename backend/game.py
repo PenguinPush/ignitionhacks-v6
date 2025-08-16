@@ -28,7 +28,7 @@ class Game:
         self.team2.points = team2
 
     def add_point(self, team):
-        target = self.teams[team + 1]
+        target = self.teams[team]
         target.points += 1
 
         self.update_game()
