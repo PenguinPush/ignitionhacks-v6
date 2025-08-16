@@ -1,8 +1,9 @@
 class PhysicsCalculator:
-    def __init__(self):
+    def __init__(self, timeout=0.5):
         self.last_position = None
         self.last_velocity = None
         self.last_time = None
+        self.timeout = timeout
 
     def update_pos(self, position, timestamp):
         if self.last_position is not None and self.last_time is not None:
@@ -26,7 +27,7 @@ class PhysicsCalculator:
         self.last_velocity = velocity
 
     def guess_velocity(self, deltatime):
-        if self.last_velocity is not None:
+        if self.last_velocity is not None and deltatime <= self.timeout:
             guessed_velocity = (
                 self.last_velocity[0],
                 self.last_velocity[1] + 550 * self.last_position[2] * deltatime,
@@ -38,12 +39,14 @@ class PhysicsCalculator:
     def guess_pos(self, timestamp):
         if self.last_position is not None and self.last_time is not None:
             deltatime = timestamp - self.last_time
-            guessed_velocity = self.guess_velocity(deltatime)
-            if guessed_velocity is not None:
-                estimated_position = (
-                    self.last_position[0] + guessed_velocity[0] * deltatime,
-                    self.last_position[1] + guessed_velocity[1] * deltatime,
-                    self.last_position[2] + guessed_velocity[2] * deltatime if guessed_velocity[2] is not None else 0.0
-                )
-                return estimated_position
+            if deltatime <= self.timeout:
+                guessed_velocity = self.guess_velocity(deltatime)
+                if guessed_velocity is not None:
+                    estimated_position = (
+                        self.last_position[0] + guessed_velocity[0] * deltatime,
+                        self.last_position[1] + guessed_velocity[1] * deltatime,
+                        self.last_position[2] + guessed_velocity[2] * deltatime if guessed_velocity[2] is not None else 0.0
+                    )
+                    return estimated_position
+            return None
         return None
