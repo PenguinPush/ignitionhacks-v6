@@ -15,11 +15,12 @@ from trackers import SORTTracker
 streaming = StreamingManager()
 streaming.connect_device(dev_idx=0)
 
-video_path = "test badminton 1.mp4"
-# video_path = "testdepth2.mp4"
+# video_path = "test badminton 1.mp4"
+video_path = "testdepth2.mp4"
 cap = cv2.VideoCapture(video_path)
 
-motion = MotionDetector(threshold=25)
+# motion = MotionDetector(threshold=25)
+motion = MotionDetector(threshold=60)
 model = get_model("badminton-crsqf/1")
 
 tracker = SORTTracker(lost_track_buffer=15, minimum_consecutive_frames=5)
@@ -76,13 +77,13 @@ async def process_video():
         if not ret:
             break
 
-        # height, width, _ = rgbd_frame.shape
-        # depth_frame = rgbd_frame[:, :width // 2]
-        # rgb_frame = rgbd_frame[:, width // 2:]
+        height, width, _ = rgbd_frame.shape
+        depth_frame = rgbd_frame[:, :width // 2]
+        rgb_frame = rgbd_frame[:, width // 2:]
 
         # for rgb_frame, depth_frame in streaming.get_frames():
-        # for motion_frame in motion._isolated_motion([rgb_frame]):
-        for motion_frame in motion._isolated_motion([rgbd_frame]):
+        for motion_frame in motion._isolated_motion([rgb_frame]):
+        # for motion_frame in motion._isolated_motion([rgbd_frame]):
             result = model.infer(motion_frame, confidence=0.2)[0]
             detections = sv.Detections.from_inference(result).with_nms(threshold=0.3)
             detections = tracker.update(detections)
@@ -112,9 +113,9 @@ async def process_video():
 
                 if calculate_distance((X, Y),
                                       last_position) <= 300 or physics.last_time + physics.timeout / 2 < current_time:
-                    # hsv_image = cv2.cvtColor(depth_frame, cv2.COLOR_BGR2HSV)
-                    # Z = hsv_image[Y_2D, X_2D, 0] / 255
-                    Z = 1
+                    hsv_image = cv2.cvtColor(depth_frame, cv2.COLOR_BGR2HSV)
+                    Z = hsv_image[Y, X, 0] / 255
+                    # Z = 1
 
                     if Z >= 0.15:
                         draw_text(X, Y, Z, (0, 255, 0))
@@ -135,10 +136,10 @@ async def process_video():
                 if calculate_distance(path_points[i - 1], path_points[i]) <= 300:
                     cv2.line(motion_frame_annotated, path_points[i - 1], path_points[i], color, 2)
 
-            overlayed_frame = cv2.addWeighted(rgbd_frame, 0.5, motion_frame_annotated, 1, 0)
-            # overlayed_frame = cv2.addWeighted(rgb_frame, 0.5, motion_frame_annotated, 1, 0)
+            # overlayed_frame = cv2.addWeighted(rgbd_frame, 0.5, motion_frame_annotated, 1, 0)
+            overlayed_frame = cv2.addWeighted(rgb_frame, 0.5, motion_frame_annotated, 1, 0)
             cv2.imshow("Motion Frame", overlayed_frame)
-            # cv2.imshow("Depth Frame", depth_frame)
+            cv2.imshow("Depth Frame", depth_frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             cap.release()
