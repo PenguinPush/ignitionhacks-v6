@@ -7,6 +7,7 @@ export default function FileAnalyzer() {
     const [gameData, setGameData] = useState(null);
 
     useEffect(() => {
+        document.title = "Goodminton > Badminton 🏸";
         let socket;
         let reconnectInterval;
 
