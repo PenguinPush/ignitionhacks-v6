@@ -8,7 +8,7 @@ from trackers import SORTTracker
 import time
 
 streaming = StreamingManager()
-streaming.connect_device(dev_idx=0)
+# streaming.connect_device(dev_idx=0)
 
 video_path = "test badminton 1.mp4"
 # video_path = "testdepth2.mp4"
@@ -92,7 +92,7 @@ while cap.isOpened():
                 int((detection_xyxy[1] + detection_xyxy[3]) / 2),
             )
 
-            if calculate_distance((X_2D, Y_2D), last_position) <= 400 or physics.last_time + physics.timeout < current_time:
+            if calculate_distance((X_2D, Y_2D), last_position) <= 300 or physics.last_time + physics.timeout / 2 < current_time:
                 # hsv_image = cv2.cvtColor(depth_frame, cv2.COLOR_BGR2HSV)
                 # depth_value = hsv_image[Y_2D, X_2D, 0] / 255
                 depth_value = 1
@@ -105,7 +105,7 @@ while cap.isOpened():
         else:
             if estimated_position and estimated_position[2] >= 0.15:
                 X_2D, Y_2D, Z = estimated_position
-                if calculate_distance((X_2D, Y_2D), last_position) <= 300 or physics.last_time + physics.timeout < current_time:
+                if calculate_distance((X_2D, Y_2D), last_position) <= 300 or physics.last_time + physics.timeout / 2 < current_time:
                     draw_text(X_2D, Y_2D, Z, (0, 0, 255))
                 else:
                     draw_text(X_2D, Y_2D, Z, (255, 0, 0), False)
@@ -113,7 +113,8 @@ while cap.isOpened():
         for i in range(1, len(path_points)):
             alpha = i / len(path_points)
             color = (255 * alpha, 255 * alpha, 255 * alpha)
-            cv2.line(motion_frame_annotated, path_points[i - 1], path_points[i], color, 2)
+            if calculate_distance(path_points[i - 1], path_points[i]) <= 300:
+                cv2.line(motion_frame_annotated, path_points[i - 1], path_points[i], color, 2)
 
         overlayed_frame = cv2.addWeighted(rgbd_frame, 0.5, motion_frame_annotated, 1, 0)
         # overlayed_frame = cv2.addWeighted(rgb_frame, 0.5, motion_frame_annotated, 1, 0)
