@@ -1,4 +1,4 @@
-# 🏸 Goodminton - AI-Powered Badminton Tracking System
+# Goodminton 🏸 - AI-Powered Badminton Tracking System
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Next.js](https://img.shields.io/badge/Next.js-15.4+-black.svg)](https://nextjs.org/)
@@ -11,17 +11,17 @@
 
 Goodminton is an innovative computer vision system that combines AI inference, motion detection, and physics calculations to track badminton shuttlecocks in real-time. The system provides 3D coordinate tracking, velocity estimation, and a beautiful web interface for monitoring game data.
 
-## ✨ Features
+## Features
 
-- **🎯 Real-time Shuttlecock Detection**: AI-powered object detection using custom trained models
-- **📊 3D Coordinate Tracking**: X, Y, Z position tracking with timestamp data
-- **🔬 Motion Analysis**: Advanced motion detection with configurable thresholds
-- **⚡ Physics Simulation**: Velocity estimation and position prediction
-- **🌐 Live Web Interface**: Real-time WebSocket communication with React frontend
-- **📱 Responsive Design**: Modern UI built with Next.js and Tailwind CSS
-- **🎥 Multi-source Support**: Camera and video file input support
+- **Real-time Shuttlecock Detection**: AI-powered object detection using custom trained models
+- **3D Coordinate Tracking**: X, Y, Z position tracking with timestamp data
+- **Motion Analysis**: Advanced motion detection with configurable thresholds
+- **Physics Simulation**: Velocity estimation and position prediction
+- **Live Web Interface**: Real-time WebSocket communication with React frontend
+- **Responsive Design**: Modern UI built with Next.js and Tailwind CSS
+- **Multi-source Support**: Camera and video file input support
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
@@ -33,7 +33,7 @@ Goodminton is an innovative computer vision system that combines AI inference, m
 └─────────────────┘    └──────────────────┘    └─────────────────┘
 ```
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Backend
 - **Python 3.8+** - Core application logic
@@ -48,7 +48,7 @@ Goodminton is an innovative computer vision system that combines AI inference, m
 - **Radix UI** - Accessible component primitives
 - **WebSocket API** - Real-time data streaming
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 - Python 3.8 or higher
@@ -86,7 +86,7 @@ Goodminton is an innovative computer vision system that combines AI inference, m
    npm run dev
    ```
 
-## 🚀 Usage
+## Usage
 
 ### Starting the System
 
@@ -112,7 +112,7 @@ Goodminton is an innovative computer vision system that combines AI inference, m
 - **AI Confidence**: Modify detection confidence in `main.py` (default: 0.2)
 - **WebSocket Port**: Change port in `main.py` if needed (default: 6767)
 
-## 📊 API Reference
+## API Reference
 
 ### WebSocket Endpoint
 - **URL**: `ws://localhost:6767`
@@ -129,7 +129,7 @@ Goodminton is an innovative computer vision system that combines AI inference, m
 }
 ```
 
-## 🔧 Customization
+## Customization
 
 ### Adding New AI Models
 1. Update the model path in `main.py`
@@ -146,7 +146,7 @@ Goodminton is an innovative computer vision system that combines AI inference, m
 - Update styling in `frontend/src/app/globals.css`
 - Add new features to the main page
 
-## 🧪 Testing
+## Testing
 
 ### Test Videos
 The project includes several test videos:
@@ -164,18 +164,18 @@ python motion.py
 python physics.py
 ```
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **IgnitionHacks v6** - Hackathon project
 - **OpenCV** - Computer vision library
 - **Next.js** - React framework
 - **Tailwind CSS** - CSS framework
 
-## 🔮 Roadmap
+## Next Steps
 
 - [ ] **Multi-camera support** for comprehensive court coverage
 - [ ] **Player tracking** and movement analysis
