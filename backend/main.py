@@ -23,7 +23,7 @@ streaming.connect_device(dev_idx=0)
 # cap = cv2.VideoCapture(video_path)
 
 # motion = MotionDetector(threshold=25)
-motion = MotionDetector(threshold=60)
+motion = MotionDetector(threshold=40)
 model = get_model("badminton-crsqf/1")
 
 tracker = SORTTracker(lost_track_buffer=15, minimum_consecutive_frames=5)
@@ -31,8 +31,9 @@ tracker = SORTTracker(lost_track_buffer=15, minimum_consecutive_frames=5)
 physics = PhysicsCalculator()
 
 path_points = []
-max_path_length = 80
+max_path_length = 5
 MAX_LINE_LENGTH = 300
+
 
 async def send_coordinates(websocket, path):
     print("WebSocket connection established")
@@ -62,7 +63,7 @@ async def send_coordinates(websocket, path):
 
 
 async def process_video():
-    def draw_text(X, Y, Z, color, line=True):
+    def draw_text(X, Y, Z, color, line=1):
         text = f"({X:.2f}, {Y:.2f}, {Z:.2f})"
         cv2.putText(
             motion_frame_annotated,
@@ -71,7 +72,7 @@ async def process_video():
             cv2.FONT_HERSHEY_SIMPLEX,
             fontScale=0.5,
             color=color,
-            thickness=1
+            thickness=line
         )
         if line:
             path_points.append((int(X), int(Y)))
@@ -125,7 +126,6 @@ async def process_video():
         motion_frame_annotated = motion_frame.copy()
         current_time = time.time()
 
-        estimated_position = physics.guess_pos(current_time)
         last_position = physics.last_position
 
         shuttles = []
@@ -146,24 +146,26 @@ async def process_video():
             )
 
             if calculate_distance((X, Y),
-                                  last_position) <= MAX_LINE_LENGTH or physics.last_time + physics.timeout / 2 < current_time:
+                                  last_position) <= MAX_LINE_LENGTH or physics.last_time <= current_time:
                 # hsv_image = cv2.cvtColor(depth_frame, cv2.COLOR_BGR2HSV)
                 # Z = hsv_image[Y, X, 0] / 255
                 # Z = depth_frame[Y, X] / 255
                 Z = 1
 
                 if Z >= 0.15:
-                    draw_text(X, Y, Z, (0, 255, 0))
+                    draw_text(X, Y, Z, (0, 255, 0), 3)
                     physics.update_pos((X, Y, Z), current_time)
 
-            else:
-                if estimated_position and estimated_position[2] >= 0.15:
-                    X, Y, Z = estimated_position
+        else:
+            estimated_position = physics.guess_pos(current_time)
+            if estimated_position:
+                X, Y, Z = estimated_position
+                if Z >= 0.15:
                     if calculate_distance((X, Y),
-                                          last_position) <= MAX_LINE_LENGTH or physics.last_time + physics.timeout / 2 < current_time:
-                        draw_text(X, Y, Z, (0, 0, 255))
+                                          last_position) <= 50 or physics.last_time + 1 <= current_time:
+                        draw_text(X, Y, Z, (0, 0, 255), 1)
                     else:
-                        draw_text(X, Y, Z, (255, 0, 0), False)
+                        draw_text(X, Y, Z, (255, 0, 0), 0)
 
         for i in range(1, len(path_points)):
             alpha = i / len(path_points)

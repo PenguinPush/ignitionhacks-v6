@@ -1,5 +1,5 @@
 class PhysicsCalculator:
-    def __init__(self, timeout=-1):
+    def __init__(self, timeout=0.25):
         self.last_position = None
         self.last_velocity = None
         self.last_time = None
@@ -27,7 +27,7 @@ class PhysicsCalculator:
         self.last_velocity = velocity
 
     def guess_velocity(self, deltatime):
-        if self.last_velocity is not None and deltatime <= self.timeout:
+        if self.last_velocity is not None:
             guessed_velocity = (
                 self.last_velocity[0],
                 self.last_velocity[1] + 550 * self.last_position[2] * deltatime,
