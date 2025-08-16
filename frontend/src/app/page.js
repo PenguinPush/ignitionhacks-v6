@@ -1,7 +1,7 @@
 "use client"
 
 import {useState, useEffect} from "react"
-import BadmintonScoreboard from "@/components/scoreboard"
+import BadmintonScoreboard from "@/components/scoreboard2"
 
 export default function FileAnalyzer() {
     const [gameData, setGameData] = useState(null);
@@ -69,18 +69,6 @@ export default function FileAnalyzer() {
                 <div className="p-6">
                     <BadmintonScoreboard/>
                 </div>
-            </div>
-            <div className="overflow-hidden absolute inset-0 h-screen w-screen">
-                {/*{coordinates && (*/}
-                {/*    <div*/}
-                {/*        className="absolute w-4 h-4 bg-red-500 rounded-full transition-all ease-in-out z-10"*/}
-                {/*        style={{*/}
-                {/*            left: `${coordinates.x * 1.5}px`,*/}
-                {/*            top: `${coordinates.y * 1.5}px`,*/}
-                {/*            transform: "translate(-50%, -50%)",*/}
-                {/*        }}*/}
-                {/*    />*/}
-                {/*)}*/}
             </div>
         </div>
     )

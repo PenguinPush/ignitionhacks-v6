@@ -43,7 +43,6 @@ export default function BadmintonScoreboard() {
 
   const flapSize = isFullscreen ? "w-48 h-48 text-8xl" : "w-24 h-24 text-4xl";
 
-  // ✅ Correct badminton rules with deuce option
   const checkGameWinner = (p1, p2) => {
     if (useDeuce) {
       // Traditional deuce rules
@@ -69,7 +68,7 @@ export default function BadmintonScoreboard() {
       const oldDigits = player1Score.toString().padStart(2, "0").split("");
       const newDigits = newScore.toString().padStart(2, "0").split("");
       const newFlipState = oldDigits.map((digit, idx) => digit !== newDigits[idx]);
-      
+
       // Update scores and flip state together
       setPrevP1(player1Score);
       setPlayer1Score(newScore);
@@ -87,7 +86,7 @@ export default function BadmintonScoreboard() {
       const oldDigits = player2Score.toString().padStart(2, "0").split("");
       const newDigits = newScore.toString().padStart(2, "0").split("");
       const newFlipState = oldDigits.map((digit, idx) => digit !== newDigits[idx]);
-      
+
       // Update scores and flip state together
       setPrevP2(player2Score);
       setPlayer2Score(newScore);
@@ -150,13 +149,13 @@ export default function BadmintonScoreboard() {
     return (
       <div className="flex gap-2">
         {digits.map((digit, idx) => {
-          
+
           const isFlipping = flipState && flipState[idx] === true;
           const prevDigit = prevDigits[idx];
-          
+
           return (
             <div key={idx} className={`relative ${flapSize}`} style={{ perspective: '1000px' }}>
-              
+
               <div
                 className={`absolute w-full h-full rounded-lg ${color} text-white font-mono font-extrabold flex items-center justify-center transition-transform duration-600 ease-in-out shadow-lg border-2 border-white/20`}
                 style={{
@@ -166,8 +165,8 @@ export default function BadmintonScoreboard() {
               >
                 {isFlipping ? prevDigit : digit}
               </div>
-              
-              
+
+
               {isFlipping && (
                 <div
                   className={`absolute w-full h-full rounded-lg ${color} text-white font-mono font-extrabold flex items-center justify-center shadow-lg border-2 border-white/20`}
@@ -183,7 +182,7 @@ export default function BadmintonScoreboard() {
             </div>
           );
         })}
-        
+
         <style jsx>{`
           @keyframes flipIn {
             0% { transform: rotateX(90deg); }
