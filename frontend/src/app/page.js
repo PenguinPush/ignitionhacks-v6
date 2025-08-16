@@ -50,9 +50,9 @@ export default function FileAnalyzer() {
 
 
     return (
-        <div className="min-h-screen bg-background overflow-hidden">
+        <div className="min-h-screen bg-background overflow-hidden badminton-bg">
             <div
-                className="absolute inset-0 bg-gradient-to-br from-background via-background to-card/50 flex justify-center align-center"/>
+                className="absolute inset-0 bg-gradient-to-br from-background/80 via-background/60 to-card/30 flex justify-center align-center"/>
 
             <div className="relative z-10 p-6">
                 <h1 className="text-xl font-bold">Birdie Coordinates</h1>
