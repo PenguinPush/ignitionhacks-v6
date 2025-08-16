@@ -221,10 +221,16 @@ export default function BadmintonScoreboard() {
         </div>);
     };
 
-    return (<div
+    return (
+    
+    <div
         ref={scoreboardRef}
-        className={`relative ${isFullscreen ? "fixed inset-0 flex items-center justify-center bg-black z-50 p-6" : "max-w-4xl mx-auto p-6"} transition-all duration-300`}
-    >
+        className={`relative ${
+          isFullscreen
+            ? "mx-auto fixed inset-0 flex items-center justify-center bg-black z-50"
+            : "max-w-5xl mx-auto p-6"
+        } transition-all duration-300`}
+      >
         <div
             className={`relative bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:to-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-2xl p-6 ${isFullscreen ? "w-3/4 h-3/4 flex flex-col items-center justify-center" : ""}`}
         >
@@ -351,7 +357,7 @@ export default function BadmintonScoreboard() {
             {/* Fullscreen Toggle */}
             <button
                 onClick={goFullscreen}
-                className="absolute bottom-4 right-4 p-3 bg-gray-200/80 dark:bg-white/20 backdrop-blur-sm rounded-full hover:bg-gray-300/80 dark:hover:bg-white/30 transition-colors z-40"
+                className="absolute bottom-4 right-4 p-3 bg-gray-200/80 dark:bg-white/20 backdrop-blur-sm rounded-full hover:bg-gray-300/80 hover:scale-105 dark:hover:bg-white/30 dark:hover:scale-105 transition-transform duration-200 tranistion-color z-40 "
             >
                 {isFullscreen ? (<Minimize className="w-6 h-6 text-gray-700 dark:text-white"/>) : (
                     <Maximize className="w-6 h-6 text-gray-700 dark:text-white"/>)}
