@@ -145,7 +145,7 @@ async def process_video():
                 # end of to be tabbed
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
-            cap.release()
+            # cap.release()
             cv2.destroyAllWindows()
 
         await asyncio.sleep(0.01)
