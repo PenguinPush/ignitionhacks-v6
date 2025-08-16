@@ -42,7 +42,7 @@ export default function BadmintonScoreboard() {
         }
     };
 
-    const flapSize = isFullscreen ? "w-48 h-48 text-8xl" : "w-24 h-24 text-4xl";
+    const flapSize = isFullscreen ? "w-60 h-80 text-9xl" : "w-36 h-48 text-8xl";
 
     const checkGameWinner = (p1, p2) => {
         if (useDeuce) {
@@ -152,7 +152,7 @@ export default function BadmintonScoreboard() {
                 const isFlipping = flipState && flipState[idx] === true;
                 const prevDigit = prevDigits[idx];
 
-                return (<div key={idx} className={`relative ${flapSize}`} style={{perspective: '500px'}}>
+                return (<div key={idx} className={`relative ${flapSize}`} style={{perspective: '400px'}}>
 
                     <div
                         className={`backface-visible absolute w-full h-full rounded-lg ${color} text-white font-mono font-extrabold flex items-center justify-center transition-transform duration-300 ease-in-out shadow-lg border-2 border-white/20`}
