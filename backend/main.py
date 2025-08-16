@@ -9,7 +9,7 @@ import time
 streaming = StreamingManager()
 streaming.connect_device(dev_idx=0)
 
-video_path = "testdepth2.mp4"
+video_path = "../testdepth2.mp4"
 cap = cv2.VideoCapture(video_path)
 
 motion = MotionDetector(threshold=60)
