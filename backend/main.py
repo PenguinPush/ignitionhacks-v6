@@ -66,7 +66,7 @@ async def process_video():
     def update_score(self, X, Y, Z, frame_width, game):
         
         current_time = time.time()
-        if Z <= self.floor_z and current_time - self.last_point_time > self.cooldown:
+        if Z <= self.floor_y and current_time - self.last_point_time > self.cooldown:
             side = "Player 1" if X < frame_width // 2 else "Player 2"
             if side == "Player 1":
                 game.team2.add_point() 
