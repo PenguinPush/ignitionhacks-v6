@@ -15,12 +15,18 @@ from trackers import SORTTracker
 # Initialize components
 streaming = StreamingManager()
 streaming.connect_device(dev_idx=0)
+
 video_path = "test badminton 1.mp4"
+# video_path = "testdepth2.mp4"
 cap = cv2.VideoCapture(video_path)
+
 motion = MotionDetector(threshold=30)
 model = get_model("shuttlecock-cqzy3/1")
+
 tracker = SORTTracker(lost_track_buffer=15, minimum_consecutive_frames=10)
+
 physics = PhysicsCalculator()
+
 path_points = []
 max_path_length = 50
 
@@ -71,6 +77,12 @@ async def process_video():
         if not ret:
             break
 
+        # height, width, _ = rgbd_frame.shape
+        # depth_frame = rgbd_frame[:, :width // 2]
+        # rgb_frame = rgbd_frame[:, width // 2:]
+
+        # for rgb_frame, depth_frame in streaming.get_frames():
+        # for motion_frame in motion._isolated_motion([rgb_frame]):
         for motion_frame in motion._isolated_motion([rgbd_frame]):
             result = model.infer(motion_frame, confidence=0.1)[0]
             detections = sv.Detections.from_inference(result).with_nms(threshold=0.3)

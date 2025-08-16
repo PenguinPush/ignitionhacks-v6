@@ -26,7 +26,7 @@ export default function FileAnalyzer() {
             };
 
             socket.onclose = () => {
-                console.error("WebSocket connection closed. Attempting to reconnect...");
+                console.log("WebSocket connection closed. Attempting to reconnect...");
                 reconnectInterval = setInterval(() => {
                     console.log("Reconnecting...");
                     connectWebSocket();
@@ -34,7 +34,7 @@ export default function FileAnalyzer() {
             };
 
             socket.onerror = (error) => {
-                console.error("WebSocket error:", error);
+                console.log("WebSocket error:", error);
                 socket.close();
             };
         };
@@ -49,7 +49,7 @@ export default function FileAnalyzer() {
 
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background overflow-hidden">
             <div
                 className="absolute inset-0 bg-gradient-to-br from-background via-background to-card/50 flex justify-center align-center"/>
 
@@ -68,6 +68,18 @@ export default function FileAnalyzer() {
                 <div className="p-6">
                     <BadmintonScoreboard/>
                 </div>
+            </div>
+            <div className="overflow-hidden absolute inset-0 h-screen w-screen">
+                {/*{coordinates && (*/}
+                {/*    <div*/}
+                {/*        className="absolute w-4 h-4 bg-red-500 rounded-full transition-all ease-in-out z-10"*/}
+                {/*        style={{*/}
+                {/*            left: `${coordinates.x * 1.5}px`,*/}
+                {/*            top: `${coordinates.y * 1.5}px`,*/}
+                {/*            transform: "translate(-50%, -50%)",*/}
+                {/*        }}*/}
+                {/*    />*/}
+                {/*)}*/}
             </div>
         </div>
     )
