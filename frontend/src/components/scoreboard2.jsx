@@ -152,7 +152,7 @@ export default function BadmintonScoreboard() {
                 const isFlipping = flipState && flipState[idx] === true;
                 const prevDigit = prevDigits[idx];
 
-                return (<div key={idx} className={`relative ${flapSize}`} style={{perspective: '400px'}}>
+                return (<div key={idx} className={`relative ${flapSize}`} style={{perspective: '600px'}}>
 
                     <div
                         className={`backface-visible absolute w-full h-full rounded-lg ${color} text-white font-mono font-extrabold flex items-center justify-center transition-transform duration-300 ease-in-out shadow-lg border-2 border-white/20`}
